@@ -1,0 +1,25 @@
+REPORT STATISTICO AVANZATO BTP
+========================================
+Operazioni Totali: 283
+Win Rate: 57.24%
+Profit Factor: 2.93
+Max Drawdown: -1,864.01 €
+Max Gain Consecutivi: 11
+Max Loss Consecutivi: 8
+
+Analisi Oraria:
+     Num_Trade  Profitto_Totale  Media_Trade
+Ora                                         
+8          184         35620.99   193.592337
+14          72          3704.67    51.453750
+15          19          -706.49   -37.183684
+16           8           160.33    20.041250
+
+Analisi Giornaliera:
+           count       sum
+Giorno                    
+Monday       NaN       NaN
+Tuesday     39.0   3026.83
+Wednesday   74.0   6058.49
+Thursday    83.0  15016.99
+Friday      87.0  14677.19
