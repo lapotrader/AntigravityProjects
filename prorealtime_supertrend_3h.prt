@@ -1,0 +1,223 @@
+// SUPERTREND 3H RECONSTRUCTED
+// Copia identica del 220m, solo bin e multiplier cambiati
+
+once bCount = 0
+once cBins = 0
+once mHigh = 0
+once mLow = 0
+once lClose = 0
+
+once sumTR = 0
+once lATR = 0
+once lUB = 0
+once lLB = 0
+once lST = 0
+once lDir = 1
+once lpClose = 0
+once lMA = 0
+
+once c1 = 0
+once c2 = 0
+once c3 = 0
+once c4 = 0
+once c5 = 0
+once c6 = 0
+once c7 = 0
+once c8 = 0
+once c9 = 0
+once c10 = 0
+once c11 = 0
+once c12 = 0
+once c13 = 0
+once c14 = 0
+once c15 = 0
+once c16 = 0
+once c17 = 0
+once c18 = 0
+once c19 = 0
+once c20 = 0
+once c21 = 0
+
+if barindex = 0 then
+    lastBin = -1
+    lastDate = 0
+else
+    lastBin = lastBin[1]
+    lastDate = lastDate[1]
+endif
+
+cBin = -1
+if time > 080000 and time <= 110000 then
+    cBin = 0
+elsif time > 110000 and time <= 140000 then
+    cBin = 1
+elsif time > 140000 and time <= 170000 then
+    cBin = 2
+endif
+
+isNewBin = (cBin <> lastBin and cBin <> -1) or (date <> lastDate and cBin <> -1)
+
+if cBin <> -1 then
+    if isNewBin then
+        if bCount > 0 then
+            pClose = lClose
+            pHigh = mHigh
+            pLow = mLow
+            
+            cBins = cBins + 1
+            
+            meanHL = (pHigh + pLow) / 2
+            if cBins = 1 then
+                tRange = pHigh - pLow
+            else
+                delta1 = pHigh - pLow
+                
+                diff2 = pHigh - lpClose
+                if diff2 < 0 then
+                    delta2 = 0 - diff2
+                else
+                    delta2 = diff2
+                endif
+                
+                diff3 = pLow - lpClose
+                if diff3 < 0 then
+                    delta3 = 0 - diff3
+                else
+                    delta3 = diff3
+                endif
+                
+                if delta2 > delta3 then
+                    tempMaxVal = delta2
+                else
+                    tempMaxVal = delta3
+                endif
+                
+                if delta1 > tempMaxVal then
+                    tRange = delta1
+                else
+                    tRange = tempMaxVal
+                endif
+            endif
+            
+            if cBins < 20 then
+                sumTR = sumTR + tRange
+                myATR = sumTR / cBins
+            elsif cBins = 20 then
+                sumTR = sumTR + tRange
+                myATR = sumTR / 20
+            else
+                myATR = (lATR * 19 + tRange) / 20
+            endif
+            lATR = myATR
+            
+            bUB = meanHL + 3.0 * myATR
+            bLB = meanHL - 3.0 * myATR
+            
+            if cBins = 1 then
+                fUB = bUB
+                fLB = bLB
+                stVal = bUB
+                dirVal = -1
+            else
+                if bUB < lUB or lpClose > lUB then
+                    fUB = bUB
+                else
+                    fUB = lUB
+                endif
+                
+                if bLB > lLB or lpClose < lLB then
+                    fLB = bLB
+                else
+                    fLB = lLB
+                endif
+                
+                if lST = lUB then
+                    if pClose > fUB then
+                        stVal = fLB
+                        dirVal = 1
+                    else
+                        stVal = fUB
+                        dirVal = -1
+                    endif
+                else
+                    if pClose < fLB then
+                        stVal = fUB
+                        dirVal = -1
+                    else
+                        stVal = fLB
+                        dirVal = 1
+                    endif
+                endif
+            endif
+            
+            lUB = fUB
+            lLB = fLB
+            lST = stVal
+            lDir = dirVal
+            lpClose = pClose
+            
+            c21 = c20
+            c20 = c19
+            c19 = c18
+            c18 = c17
+            c17 = c16
+            c16 = c15
+            c15 = c14
+            c14 = c13
+            c13 = c12
+            c12 = c11
+            c11 = c10
+            c10 = c9
+            c9 = c8
+            c8 = c7
+            c7 = c6
+            c6 = c5
+            c5 = c4
+            c4 = c3
+            c3 = c2
+            c2 = c1
+            c1 = pClose
+            
+            if cBins >= 21 then
+                maVal = (c1+c2+c3+c4+c5+c6+c7+c8+c9+c10+c11+c12+c13+c14+c15+c16+c17+c18+c19+c20+c21) / 21
+            else
+                maVal = undefined
+            endif
+            lMA = maVal
+        endif
+        
+        bCount = bCount + 1
+        mHigh = high
+        mLow = low
+    else
+        if high > mHigh then
+            mHigh = high
+        endif
+        if low < mLow then
+            mLow = low
+        endif
+    endif
+    lClose = close
+endif
+
+lastBin = cBin
+lastDate = date
+
+if cBins > 0 then
+    plotST = lST
+    plotMA = lMA
+    
+    if lDir = 1 then
+        plotSTlong = plotST
+        plotSTshort = undefined
+    else
+        plotSTlong = undefined
+        plotSTshort = plotST
+    endif
+else
+    plotSTlong = undefined
+    plotSTshort = undefined
+    plotMA = undefined
+endif
+
+return plotSTlong as "ST3H Long", plotSTshort as "ST3H Short", plotMA as "SMA 21 3H"

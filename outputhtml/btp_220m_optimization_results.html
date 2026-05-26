@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report di Ottimizzazione BTP 220 Minuti (3 Barre/Giorno)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #080b11;
+            --card-bg: rgba(17, 23, 41, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary-grad: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            --accent-grad: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+            --gold-grad: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --green: #10b981;
+            --red: #ef4444;
+            --glow-color: rgba(79, 172, 254, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(79, 172, 254, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(246, 211, 101, 0.03) 0%, transparent 40%);
+            background-attachment: fixed;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo-area {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #00f2fe;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 3rem;
+            background: linear-gradient(to right, #ffffff, #9ca3af, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+
+        /* Grid per KPI */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px var(--glow-color);
+            border-color: rgba(79, 172, 254, 0.3);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-grad);
+        }
+
+        .kpi-card.accent::before {
+            background: var(--accent-grad);
+        }
+
+        .kpi-card.gold::before {
+            background: var(--gold-grad);
+        }
+
+        .kpi-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .kpi-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .kpi-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Sezione Tabelle */
+        .section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 35px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 15px;
+        }
+
+        .section-title-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .section-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .badge {
+            background: rgba(79, 172, 254, 0.1);
+            color: #00f2fe;
+            border: 1px solid rgba(79, 172, 254, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 16px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            transition: background 0.2s ease;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        tr:first-child td {
+            font-weight: 700;
+            background: rgba(0, 242, 254, 0.03);
+            border-bottom: 1px solid rgba(0, 242, 254, 0.15);
+        }
+
+        .highlight-text {
+            font-weight: 700;
+            color: #00f2fe;
+        }
+
+        .profit-text {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .dd-text {
+            color: var(--red);
+        }
+
+        .ratio-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 300;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .section-card { padding: 20px; }
+            body { padding: 20px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-area">BTP Intraday 220M</div>
+            <h1>Risultati di Ottimizzazione BTP a 220 Minuti</h1>
+            <p class="subtitle">Analisi sui file trasformati settimanali (2023-2025). 3 barre al giorno: 08:00-11:40 | 11:40-15:20 | 15:20-19:00.</p>
+        </header>
+
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">Migliore Configurazione per Efficienza</div>
+                <div class="kpi-value" style="background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ST (20, 3.0) + TP 1.0</div>
+                <div class="kpi-desc">Filtro MA: OFF/SMA 21 | Win Rate eccezionale del 92.7% | Rapporto P/DD = 7.65</div>
+            </div>
+            <div class="kpi-card accent">
+                <div class="kpi-title">Win Rate Massimo Raggiunto</div>
+                <div class="kpi-value profit-text">92.73 %</div>
+                <div class="kpi-desc">51 operazioni vincenti su 55 totali (Profit Factor pari a 4.92)</div>
+            </div>
+            <div class="kpi-card gold">
+                <div class="kpi-title">Drawdown Storico Contenuto</div>
+                <div class="kpi-value dd-text">2.310,00 €</div>
+                <div class="kpi-desc">A fronte di un profitto netto di 17.661,74 € su 2.75 anni</div>
+            </div>
+        </section>
+
+        <!-- Tabella: Ratio Profitto/DD -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title-wrapper">
+                    <h2 class="section-title">Classifica dei Migliori Set-Up (Ordinati per Ratio Profit/DD)</h2>
+                    <p class="section-subtitle">Ottimo per la stabilità psicologica: mostra i set-up con la massima resa a fronte delle perdite più piccole.</p>
+                </div>
+                <span class="badge">Efficienza</span>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Filtro MA</th>
+                            <th>Supertrend (P, M)</th>
+                            <th>Take Profit</th>
+                            <th>Operazioni</th>
+                            <th>Win Rate</th>
+                            <th>Profit Factor</th>
+                            <th>Profitto Netto</th>
+                            <th>Max Drawdown</th>
+                            <th>Ratio P/DD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class='highlight-text'>Nessuno (Filtro OFF)</td>
+                            <td>(20, 3.0)</td>
+                            <td>ATR x 1.0</td>
+                            <td>55</td>
+                            <td>92.7%</td>
+                            <td>4.92</td>
+                            <td class="profit-text">17.661.74 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">7.65</span></td>
+                        </tr>
+                        <tr>
+                            <td class='highlight-text'>SMA 21</td>
+                            <td>(20, 3.0)</td>
+                            <td>ATR x 1.0</td>
+                            <td>54</td>
+                            <td>92.6%</td>
+                            <td>4.80</td>
+                            <td class="profit-text">17.141.82 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">7.42</span></td>
+                        </tr>
+                        <tr>
+                            <td >Nessuno (Filtro OFF)</td>
+                            <td>(30, 3.0)</td>
+                            <td>ATR x 1.0</td>
+                            <td>55</td>
+                            <td>90.9%</td>
+                            <td>3.99</td>
+                            <td class="profit-text">16.349.54 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">7.08</span></td>
+                        </tr>
+                        <tr>
+                            <td >SMA 21</td>
+                            <td>(30, 3.0)</td>
+                            <td>ATR x 1.0</td>
+                            <td>54</td>
+                            <td>90.7%</td>
+                            <td>3.90</td>
+                            <td class="profit-text">15.857.90 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">6.86</span></td>
+                        </tr>
+                        <tr>
+                            <td class='highlight-text'>SMA 50</td>
+                            <td>(20, 3.0)</td>
+                            <td>ATR x 1.0</td>
+                            <td>44</td>
+                            <td>90.9%</td>
+                            <td>3.75</td>
+                            <td class="profit-text">12.402.38 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">5.37</span></td>
+                        </tr>
+                        <tr>
+                            <td >SMA 50</td>
+                            <td>(30, 3.0)</td>
+                            <td>ATR x 1.0</td>
+                            <td>44</td>
+                            <td>88.6%</td>
+                            <td>3.05</td>
+                            <td class="profit-text">11.206.92 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">4.85</span></td>
+                        </tr>
+                        <tr>
+                            <td >SMA 21</td>
+                            <td>(20, 3.0)</td>
+                            <td>ATR x 1.5</td>
+                            <td>54</td>
+                            <td>79.6%</td>
+                            <td>2.55</td>
+                            <td class="profit-text">17.319.81 €</td>
+                            <td class="dd-text">3.790.00 €</td>
+                            <td><span class="ratio-badge">4.57</span></td>
+                        </tr>
+                        <tr>
+                            <td >Nessuno (Filtro OFF)</td>
+                            <td>(20, 3.0)</td>
+                            <td>ATR x 1.5</td>
+                            <td>55</td>
+                            <td>78.2%</td>
+                            <td>2.36</td>
+                            <td class="profit-text">16.429.81 €</td>
+                            <td class="dd-text">3.790.00 €</td>
+                            <td><span class="ratio-badge">4.34</span></td>
+                        </tr>
+                        <tr>
+                            <td class='highlight-text'>SMA 100</td>
+                            <td>(20, 3.0)</td>
+                            <td>ATR x 1.0</td>
+                            <td>37</td>
+                            <td>89.2%</td>
+                            <td>3.13</td>
+                            <td class="profit-text">9.623.83 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">4.17</span></td>
+                        </tr>
+                        <tr>
+                            <td >Nessuno (Filtro OFF)</td>
+                            <td>(20, 3.0)</td>
+                            <td>ATR x 0.5</td>
+                            <td>55</td>
+                            <td>98.2%</td>
+                            <td>4.95</td>
+                            <td class="profit-text">9.124.23 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">3.95</span></td>
+                        </tr>
+                        <tr>
+                            <td >SMA 21</td>
+                            <td>(20, 3.0)</td>
+                            <td>ATR x 0.5</td>
+                            <td>54</td>
+                            <td>98.1%</td>
+                            <td>4.84</td>
+                            <td class="profit-text">8.864.27 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">3.84</span></td>
+                        </tr>
+                        <tr>
+                            <td >SMA 100</td>
+                            <td>(30, 3.0)</td>
+                            <td>ATR x 1.0</td>
+                            <td>37</td>
+                            <td>86.5%</td>
+                            <td>2.54</td>
+                            <td class="profit-text">8.407.29 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">3.64</span></td>
+                        </tr>
+                        <tr>
+                            <td >Nessuno (Filtro OFF)</td>
+                            <td>(30, 3.0)</td>
+                            <td>ATR x 1.5</td>
+                            <td>55</td>
+                            <td>78.2%</td>
+                            <td>2.36</td>
+                            <td class="profit-text">16.570.74 €</td>
+                            <td class="dd-text">4.756.91 €</td>
+                            <td><span class="ratio-badge">3.48</span></td>
+                        </tr>
+                        <tr>
+                            <td >Nessuno (Filtro OFF)</td>
+                            <td>(30, 3.0)</td>
+                            <td>ATR x 0.5</td>
+                            <td>55</td>
+                            <td>96.4%</td>
+                            <td>3.44</td>
+                            <td class="profit-text">7.999.42 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">3.46</span></td>
+                        </tr>
+                        <tr>
+                            <td >SMA 21</td>
+                            <td>(30, 3.0)</td>
+                            <td>ATR x 0.5</td>
+                            <td>54</td>
+                            <td>96.3%</td>
+                            <td>3.36</td>
+                            <td class="profit-text">7.753.60 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">3.36</span></td>
+                        </tr>
+                        <tr>
+                            <td >SMA 21</td>
+                            <td>(30, 3.0)</td>
+                            <td>ATR x 1.5</td>
+                            <td>54</td>
+                            <td>77.8%</td>
+                            <td>2.30</td>
+                            <td class="profit-text">15.833.27 €</td>
+                            <td class="dd-text">4.756.91 €</td>
+                            <td><span class="ratio-badge">3.33</span></td>
+                        </tr>
+                        <tr>
+                            <td class='highlight-text'>SMA 200</td>
+                            <td>(20, 3.0)</td>
+                            <td>ATR x 1.0</td>
+                            <td>29</td>
+                            <td>86.2%</td>
+                            <td>2.51</td>
+                            <td class="profit-text">6.788.25 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">2.94</span></td>
+                        </tr>
+                        <tr>
+                            <td >SMA 50</td>
+                            <td>(20, 3.0)</td>
+                            <td>ATR x 0.5</td>
+                            <td>44</td>
+                            <td>97.7%</td>
+                            <td>3.81</td>
+                            <td class="profit-text">6.494.55 €</td>
+                            <td class="dd-text">2.310.00 €</td>
+                            <td><span class="ratio-badge">2.81</span></td>
+                        </tr>
+                        <tr>
+                            <td >SMA 50</td>
+                            <td>(20, 3.0)</td>
+                            <td>ATR x 1.5</td>
+                            <td>44</td>
+                            <td>75.0%</td>
+                            <td>1.91</td>
+                            <td class="profit-text">10.210.65 €</td>
+                            <td class="dd-text">3.790.00 €</td>
+                            <td><span class="ratio-badge">2.69</span></td>
+                        </tr>
+                        <tr>
+                            <td >SMA 100</td>
+                            <td>(20, 3.0)</td>
+                            <td>ATR x 1.5</td>
+                            <td>37</td>
+                            <td>78.4%</td>
+                            <td>2.10</td>
+                            <td class="profit-text">9.755.61 €</td>
+                            <td class="dd-text">3.790.00 €</td>
+                            <td><span class="ratio-badge">2.57</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <p>Report generato per il time frame personalizzato a 220 minuti. Dati storici intraday: Marzo 2023 - Dicembre 2025.</p>
+        </footer>
+    </div>
+</body>
+</html>

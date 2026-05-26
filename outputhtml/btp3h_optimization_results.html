@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="it">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BTP 3H</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e17;color:#e5e7eb;padding:30px 20px}
+.container{max-width:1200px;margin:0 auto}
+h1{font-size:1.8rem;font-weight:700;background:linear-gradient(135deg,#00f2fe,#4facfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:5px}
+.subtitle{color:#6b7280;font-size:.9rem;margin-bottom:30px}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{text-transform:uppercase;letter-spacing:.5px;color:#6b7280;padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;font-weight:600}
+td{padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.04)}
+tr:hover td{background:rgba(255,255,255,.02)}
+tr:first-child td{background:rgba(0,242,254,.05);border-bottom:1px solid rgba(0,242,254,.15)}
+.highlight-text{font-weight:700;color:#00f2fe}
+.profit-text{color:#10b981;font-weight:700}
+.dd-text{color:#ef4444}
+.ratio-badge{display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(16,185,129,.1);color:#10b981;font-weight:700}
+footer{margin-top:40px;color:#6b7280;font-size:.8rem;text-align:center}
+</style></head>
+<body><div class="container">
+<h1>BTP 3H Optimization</h1>
+<p class="subtitle">ST Periodi: 10,14,20,30 × Moltiplicatori: 1.5,2.0,2.5,3.0 × TP: 0.5,1.0,1.5,2.0,3.0,NoTP × MA: OFF,21,50,100,200</p>
+<div style="overflow-x:auto"><table>
+<thead><tr><th>MA</th><th>ST(P,M)</th><th>TP</th><th>Trades</th><th>Win%</th><th>PF</th><th>Profit</th><th>DD</th><th>P/DD</th></tr></thead>
+<tbody><tr><td >SMA21.0</td><td>(14,3.0)</td><td>1.0</td><td>60</td><td>90%</td><td>2.76</td><td class="profit-text">15,015€</td><td class="dd-text">2,450€</td><td><span class="ratio-badge">6.1</span></td></tr><tr><td >SMAnan</td><td>(14,3.0)</td><td>1.0</td><td>60</td><td>90%</td><td>2.76</td><td class="profit-text">15,015€</td><td class="dd-text">2,450€</td><td><span class="ratio-badge">6.1</span></td></tr><tr><td >SMAnan</td><td>(20,2.5)</td><td>1.5</td><td>68</td><td>75%</td><td>2.02</td><td class="profit-text">17,065€</td><td class="dd-text">3,068€</td><td><span class="ratio-badge">5.6</span></td></tr><tr><td >SMA21.0</td><td>(10,3.0)</td><td>1.0</td><td>58</td><td>90%</td><td>2.50</td><td class="profit-text">13,626€</td><td class="dd-text">2,748€</td><td><span class="ratio-badge">5.0</span></td></tr><tr><td >SMAnan</td><td>(10,3.0)</td><td>1.0</td><td>58</td><td>90%</td><td>2.50</td><td class="profit-text">13,626€</td><td class="dd-text">2,748€</td><td><span class="ratio-badge">5.0</span></td></tr><tr><td >SMAnan</td><td>(20,2.5)</td><td>1.0</td><td>68</td><td>85%</td><td>2.24</td><td class="profit-text">14,067€</td><td class="dd-text">2,846€</td><td><span class="ratio-badge">4.9</span></td></tr><tr><td >SMA21.0</td><td>(20,2.5)</td><td>1.5</td><td>63</td><td>75%</td><td>1.91</td><td class="profit-text">14,751€</td><td class="dd-text">3,068€</td><td><span class="ratio-badge">4.8</span></td></tr><tr><td >SMAnan</td><td>(20,2.5)</td><td>2.0</td><td>68</td><td>68%</td><td>2.07</td><td class="profit-text">21,348€</td><td class="dd-text">4,557€</td><td><span class="ratio-badge">4.7</span></td></tr><tr><td >SMAnan</td><td>(20,2.5)</td><td>0.5</td><td>68</td><td>93%</td><td>2.09</td><td class="profit-text">7,079€</td><td class="dd-text">1,611€</td><td><span class="ratio-badge">4.4</span></td></tr><tr><td >SMA21.0</td><td>(20,2.5)</td><td>1.0</td><td>63</td><td>84%</td><td>2.03</td><td class="profit-text">11,736€</td><td class="dd-text">2,846€</td><td><span class="ratio-badge">4.1</span></td></tr><tr><td >SMA21.0</td><td>(20,2.5)</td><td>2.0</td><td>63</td><td>67%</td><td>1.94</td><td class="profit-text">18,042€</td><td class="dd-text">4,557€</td><td><span class="ratio-badge">4.0</span></td></tr><tr><td >SMA21.0</td><td>(30,2.5)</td><td>1.0</td><td>65</td><td>83%</td><td>1.89</td><td class="profit-text">11,196€</td><td class="dd-text">2,872€</td><td><span class="ratio-badge">3.9</span></td></tr><tr><td >SMAnan</td><td>(30,2.5)</td><td>1.0</td><td>70</td><td>83%</td><td>1.79</td><td class="profit-text">11,223€</td><td class="dd-text">2,890€</td><td><span class="ratio-badge">3.9</span></td></tr><tr><td >SMA100.0</td><td>(10,3.0)</td><td>1.0</td><td>39</td><td>90%</td><td>2.36</td><td class="profit-text">8,747€</td><td class="dd-text">2,450€</td><td><span class="ratio-badge">3.6</span></td></tr><tr><td >SMA50.0</td><td>(14,3.0)</td><td>1.0</td><td>46</td><td>87%</td><td>2.02</td><td class="profit-text">8,733€</td><td class="dd-text">2,450€</td><td><span class="ratio-badge">3.6</span></td></tr><tr><td >SMA100.0</td><td>(14,3.0)</td><td>1.0</td><td>41</td><td>88%</td><td>2.00</td><td class="profit-text">7,726€</td><td class="dd-text">2,450€</td><td><span class="ratio-badge">3.2</span></td></tr><tr><td >SMA21.0</td><td>(20,2.5)</td><td>0.5</td><td>63</td><td>92%</td><td>1.91</td><td class="profit-text">5,913€</td><td class="dd-text">1,890€</td><td><span class="ratio-badge">3.1</span></td></tr><tr><td >SMA100.0</td><td>(20,2.5)</td><td>2.0</td><td>42</td><td>64%</td><td>1.63</td><td class="profit-text">9,125€</td><td class="dd-text">2,969€</td><td><span class="ratio-badge">3.1</span></td></tr><tr><td >SMA50.0</td><td>(20,2.5)</td><td>2.0</td><td>49</td><td>63%</td><td>1.59</td><td class="profit-text">10,310€</td><td class="dd-text">3,427€</td><td><span class="ratio-badge">3.0</span></td></tr><tr><td >SMA50.0</td><td>(10,3.0)</td><td>1.0</td><td>45</td><td>87%</td><td>1.87</td><td class="profit-text">7,886€</td><td class="dd-text">2,748€</td><td><span class="ratio-badge">2.9</span></td></tr></tbody></table></div>
+<footer>480 test · Migliore: ST(14,3.0) TP1.0 MASMA21.0 · Ratio 6.1</footer>
+</div></body></html>
