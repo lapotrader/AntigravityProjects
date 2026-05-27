@@ -1,0 +1,12 @@
+import pandas as pd
+df = pd.read_csv('dati/dax_220m.txt', sep='\t', parse_dates=['data'])
+df.rename(columns={'data':'Datetime','close':'Close','open':'Open','high':'High','low':'Low','volume':'Volume'}, inplace=True)
+df.set_index('Datetime', inplace=True)
+daily = df.resample('D').agg({'Open':'first','High':'max','Low':'min','Close':'last','Volume':'sum'}).dropna()
+dc = daily['Close'].resample('W-FRI').count()
+weekly = daily.resample('W-FRI').agg({'Open':'first','High':'max','Low':'min','Close':'last','Volume':'sum'})
+weekly = weekly[dc >= 3].dropna()
+print(f'Bars 220m: {len(df)} ({df.index[0]} -> {df.index[-1]})')
+print(f'Daily: {len(daily)}')
+print(f'Weekly: {len(weekly)} ({weekly.index[0].date()} -> {weekly.index[-1].date()})')
+print(f'Ultimo close weekly: {weekly["Close"].iloc[-1]:.2f} al {weekly.index[-1].date()}')

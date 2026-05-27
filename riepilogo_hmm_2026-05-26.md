@@ -175,11 +175,116 @@ Semaforo HMM ROSSO indica transizione: in quei periodi non vendere opzioni.
 
 ---
 
-## 8. Prossimi Passi (da riprendere)
+## 8. Analisi BUND Future — Settimanale (26/05/2026)
+
+Abbiamo replicato l'analisi settimanale sul **BUND Future** usando i dati `dati/bund_220m.txt` (barre 220 minuti dal 2018-05-03), resampling a daily e poi weekly.
+
+### Script
+| Script | Descrizione |
+|--------|-------------|
+| `scripts/bund_weekly_analysis.py` | Analisi completa BUND weekly: stati, matrice, HMM, escursione condizionata |
+
+### Risultati Chiave
+| Metrica | BTP Weekly | BUND Weekly |
+|---------|:----------:|:-----------:|
+| Sideways % | 69.7% | 69.2% |
+| Bull Stickiness | 17.39% | **22.22%** |
+| Bear Stickiness | **28.77%** | 17.24% |
+| Sideways Stickiness | **74.07%** | 69.37% |
+| Uncond Max99 | 5.23% | **4.00%** |
+
+### Escursione Condizionata — BUND
+| Filtro | N | % | Max95 | Max99 | Strike sicuro |
+|--------|:-:|:-:|:-----:|:-----:|:-------------:|
+| SW+Consec2+Vol<20% | 19 | 5% | 0.95% | **0.99%** | ±1.2% |
+| SW+Consec3+Vol<40% | 22 | 6% | 1.01% | **1.53%** | ±1.8% |
+| SW+Consec4+Vol<50% | 29 | 7% | 1.53% | **1.96%** | ±2.5% |
+| SW+Vol<15% | 32 | 8% | 0.96% | **1.02%** | ±1.2% |
+| SW+Consec4 | 66 | 17% | 1.96% | **2.51%** | ±3.0% |
+
+### Conclusioni BUND
+- **Migliore del BTP per vendita opzioni**: volatilità base più bassa (4% vs 5.2%)
+- **Miglior rapporto trade/sicurezza**: `SW+Consec2+Vol<20%` — 19 trade, Max99=0.99%, strike ±1.2%, 1 ogni ~5 mesi
+- **Più conservativo**: `SW+Consec3+Vol<30%` — 16 trade, Max99=0.99%, strike ±1.2%, 1 ogni ~6 mesi
+- **Per più frequenza**: `SW+Consec4` — 66 trade, Max99=2.51%, strike ±3.0%, 1 ogni ~6 settimane (ma strike largo)
+- I dati BUND finiscono al 08/05/2026 (mancano 2-3 settimane)
+
+### Segnale Corrente BUND (al 08/05/2026)
+- Stato: Sideways + HMM Sideways = **VERDE**
+- Consec SW: 2 (serve 3+)
+- Vol rank: 47.6% (serve <25%)
+- **NO TRADE (2/4)**
+
+---
+
+## 9. Analisi DAX Future — Settimanale (26/05/2026)
+
+Dati: 154 settimane (2023-06 → 2026-05), prezzo ~24.342. `scripts/dax_weekly_analysis.py`
+
+| Metrica | Valore |
+|---------|:------:|
+| Sideways % | 65.6% |
+| Bull Stickiness | **30.30%** |
+| Bear Stickiness | 10.00% |
+| Sideways Stickiness | 64.00% |
+| Uncond Max99 | 7.87% |
+
+**Conclusione**: Troppo volatile per opzioni. Max99 col miglior filtro (SW+Consec5) = 3.90% (N=9). Strike minimo ±5.0%. Invece Bull Stickiness 30% lo rende il migliore per trend following long.
+
+---
+
+## 10. Analisi STOXX Future — Settimanale (26/05/2026)
+
+Dati: 153 settimane (2023-06 → 2026-05), prezzo ~5.813. `scripts/stoxx_weekly_analysis.py`
+
+| Metrica | Valore |
+|---------|:------:|
+| Sideways % | 69.3% |
+| Bull Stickiness | **7.69%** |
+| Bear Stickiness | **4.76%** |
+| Sideways Stickiness | 68.57% |
+| Uncond Max99 | 7.18% |
+| Miglior filtro (SW+Consec2+Vol<15%) Max99 | 3.83% (N=13) |
+
+**Conclusione**: Peggiore dei 4 per opzioni. Stickiness quasi zero su Bull e Bear — mean reversion violentissima. Volatilità simile a DAX. Non adatto.
+
+---
+
+## 11. Classifica Finale Strumenti
+
+| Strumento | Max99 migliore | Strike sicuro | N | Frequenza |
+|-----------|:-------------:|:-------------:|:-:|:---------:|
+| **BUND** | **0.97%** | **±1.2%** | 18 | ogni 5 mesi |
+| BTP | 1.49% | ±1.8% | 34 | ogni 3 mesi |
+| STOXX | 3.83% | ±5.0% | 13 | ogni 3 mesi |
+| DAX | 3.90% | ±5.0% | 9 | ogni 4 mesi |
+
+**Migliore per vendita opzioni**: BUND (volatilità più bassa, filtri più efficaci)
+**Migliore per direzionale long**: DAX (Bull Stickiness 30.30%)
+**Scartati per opzioni**: DAX e STOXX (volatilità troppo alta)
+
+---
+
+## 12. Monitoraggio BTP (26/05/2026)
+
+Creato `btp_monitor.html` — pagina statica con widget TradingView per monitorare il BTP Future da smartphone. Usa simbolo IDEM:FBTP1!, grafico 60min, dark theme. Per vederlo da telefono: `python -m http.server 8080` e apri `http://<IP>:8080/btp_monitor.html`.
+
+---
+
+## 13. Note Generali
+
+- I file "removed" da git (CalcolaLivelliBTP.spec, PULITO_btp_trasformato_week_*.txt, Report_Completo_Strategia.xlsx, ecc.) sono stati committati come cancellati per pulire la vista. I dati e script attuali sono intatti.
+
+---
+
+## 14. Prossimi Passi (da riprendere)
 
 - [ ] Verificare cosa ha fatto il BTP il 26/05 e confrontare con la previsione Short al 5.08%
 - [x] Integrare il calcolatore strike opzioni con segnale HMM/Markov (fatto: `btp_highconf_options.py`)
+- [x] Testare su BUND (fatto: `scripts/bund_weekly_analysis.py`)
+- [x] Testare su DAX (fatto: `scripts/dax_weekly_analysis.py`)
+- [x] Testare su STOXX (fatto: `scripts/stoxx_weekly_analysis.py`)
 - [ ] Automatizzare controllo settimanale (cron job ogni venerdì)
-- [ ] Testare su BUND, DAX, STOXX (dati già disponibili)
 - [ ] Provare volatilità a 10/30/50 settimane invece di 20
 - [ ] Aggiungere feature HMM: volatilità + rendimenti invece di soli rendimenti
+- [ ] Esplorare direzionale long su DAX (Bull Stickiness 30%)
