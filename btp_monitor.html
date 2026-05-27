@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTP Future Monitor</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0d1117; font-family: -apple-system, sans-serif; color: #c9d1d9; padding: 0; }
+.header { padding: 12px 16px; background: #161b22; border-bottom: 1px solid #30363d; text-align: center; }
+.header h1 { font-size: 16px; font-weight: 600; }
+.header span { font-size: 12px; color: #8b949e; }
+.chart-wrap { padding: 8px; }
+.chart-wrap iframe { width: 100%; height: calc(100vh - 120px); border: none; border-radius: 8px; }
+.footer { text-align: center; padding: 8px; font-size: 11px; color: #484f58; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>BTP Future</h1>
+  <span>IDEM:FBTP1! &middot; Dati in tempo reale</span>
+</div>
+<div class="chart-wrap">
+<div class="tradingview-widget-container">
+  <div id="tradingview_btp"></div>
+  <script src="https://s3.tradingview.com/tv.js"></script>
+  <script>
+  new TradingView.widget({
+    container_id: "tradingview_btp",
+    autosize: true,
+    symbol: "IDEM:FBTP1!",
+    interval: "60",
+    timezone: "Europe/Rome",
+    theme: "dark",
+    style: "1",
+    locale: "it",
+    toolbar_bg: "#161b22",
+    enable_publishing: false,
+    hide_side_toolbar: false,
+    allow_symbol_change: true,
+    details: true,
+    hotlist: true,
+    studies: [
+      "RSI@tv-basicstudies",
+      "StochasticRSI@tv-basicstudies"
+    ],
+    show_popup_button: true,
+    popup_width: "1000",
+    popup_height: "650"
+  });
+  </script>
+</div>
+</div>
+<div class="footer">
+  Apri dal telefono &bull; Aggiornamento automatico
+</div>
+</body>
+</html>
