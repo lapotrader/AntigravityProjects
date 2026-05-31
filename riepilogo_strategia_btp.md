@@ -64,3 +64,23 @@
 - Il next_pivot **non è noto all'entry**: è un trailing strutturale. Il TP viene aggiornato quando il nuovo swing si forma e viene confermato (5 barre dopo).
 - La strategia è interamente replicabile in live: pivot passati confermati, SL deterministico, TP dinamico.
 - Costi reali indicativi (future BTP): entry 3€ + exit 3€ = 6€/trade, trascurabili sui volumi.
+
+## Da Fare — Prossima Sessione
+
+### Filtri Aggiuntivi (ridurre drawdown, aumentare robustezza)
+- [ ] **Filtro HMM regime** (2-3 stati: trend/range/volatile) — saltare entry in regime sfavorevole
+  - Script di riferimento: `riepilogo_hmm_2026-05-26.md`
+- [ ] **Filtro volatilità** — saltare entry se ATR < 20ma o beyond dev std
+- [ ] **Filtro trend macro** — correlazione con Bund, spread BTP-Bund
+- [ ] **Filtro orario** — analizzare performance per ora del giorno, saltare ore deboli
+- [ ] **Integrazione filtri in `btp_1h_strategy_live.py`** + test retrospettivo
+
+### Ottimizzazioni
+- [ ] **Ricalibrare stop-loss dinamico** (ATR multiplier, trailing activation)
+- [ ] **Test su timeframe 30min** per maggiori segnali
+- [ ] **Test su altri mercati** (Bund, EuroStoxx) per generalizzazione
+
+### Monitoring & Automazione
+- [ ] **Alert automatico** via Telegram/email su nuovi segnali ST(30,1.5)
+- [ ] **Dashboard live** con equity, DD, ultimi trade
+- [ ] **Backtest automatico** settimanale su nuovi dati

@@ -1,27 +1,40 @@
-# Serviio — Note
+# Serviio / Rete — Note
 
-## Configurazione di Rete
+## Dispositivi in rete
 
-- **Questo PC**: 192.168.1.x (PC attuale)
-- **Altro PC**: DESKTOP-56OHR3O @ 192.168.1.5 (piano sotto)
-- **Router**: 192.168.1.1
+| Dispositivo | IP | Nome PC |
+|---|---|---|
+| Questo PC | 192.168.1.10 | DESKTOP-TL38OLL |
+| PC piano sotto | 192.168.1.5 | DESKTOP-56OHR3O |
+| Notebook (Windows 11) | 192.168.1.15 | LAPTOP-TS6RMJGF |
+| Router | 192.168.1.1 | — |
 
-## Accesso all'altro PC
+## Accesso Notebook (LAPTOP-TS6RMJGF)
 
-- `\\192.168.1.5` o `\\DESKTOP-56OHR3O`
-- Ha un account **locale** (nessuna password impostata)
-- Windows blocca accesso via rete a utenti senza password
-- **Soluzione**: andare sul PC remoto e impostare una password per l'utente locale
+- Utente: `tradin python` (password vuota)
+- Per abilitare accesso senza password: `Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name "LimitBlankPasswordUse" -Value 0`
+- Condivisioni: `C:` (disco intero), `cherie` (cartella), stampante HP
 
-## Cartelle Condivise
+## Accesso PC piano sotto (DESKTOP-56OHR3O)
 
-- Questo PC: solo condivisioni admin di default (C$, ADMIN$, IPC$)
-- Altro PC: nessuna condivisione visibile senza autenticazione
+- Utente locale, password non impostata
+- Condivisioni: `Disco giu`, `Users` (solo Public accessibile)
+- **Problema**: Windows blocca accesso rete con password vuota. Necessario:
+  - `secpol.msc` → Account: Limita uso account locali con password vuota... → Disabilitato
+  - Oppure impostare password sull'account
 
-## Passi per far funzionare Serviio
+## Comandi utili
 
-1. Impostare password sull'account locale del PC remoto
-2. Condividere cartelle multimediali sul PC remoto (tasto dx → Proprietà → Condivisione)
-3. Configurare Serviio per puntare alle cartelle condivise
-4. Verificare che il firewall permetta traffico Serviio (porta 23424/tcp, 1900/udp UPnP)
-5. Verificare individuazione rete attiva su entrambi i PC
+```powershell
+# Condividere un disco
+New-SmbShare -Name "C" -Path "C:\" -ChangeAccess Everyone
+
+# Abilitare firewall per condivisione
+Set-NetFirewallRule -DisplayGroup "Condivisione file e stampanti" -Enabled True -Profile Private
+
+# Abilitare accesso senza password in rete
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name "LimitBlankPasswordUse" -Value 0
+
+# Verificare connessione
+net view \\192.168.1.15
+```

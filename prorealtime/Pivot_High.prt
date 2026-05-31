@@ -1,0 +1,17 @@
+// Pivot High (lookback=5) - BTP 1h
+// Mostra l'ultimo pivot high come linea a gradini
+// SHORT: SL e' sopra, TP sara' il prossimo pivot high
+
+IsPH = (HIGH > HIGH[1] AND HIGH > HIGH[2] AND HIGH > HIGH[3] AND HIGH > HIGH[4] AND HIGH > HIGH[5])
+
+IF BARINDEX = 1 THEN
+   PH = HIGH
+ELSE
+   IF IsPH THEN
+      PH = HIGH
+   ELSE
+      PH = PH[1]
+   ENDIF
+ENDIF
+
+RETURN PH

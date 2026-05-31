@@ -1,0 +1,17 @@
+// Pivot Low (lookback=5) - BTP 1h
+// Mostra l'ultimo pivot low come linea a gradini
+// LONG: SL e' sotto, TP sara' il prossimo pivot low
+
+IsPL = (LOW < LOW[1] AND LOW < LOW[2] AND LOW < LOW[3] AND LOW < LOW[4] AND LOW < LOW[5])
+
+IF BARINDEX = 1 THEN
+   PL = LOW
+ELSE
+   IF IsPL THEN
+      PL = LOW
+   ELSE
+      PL = PL[1]
+   ENDIF
+ENDIF
+
+RETURN PL

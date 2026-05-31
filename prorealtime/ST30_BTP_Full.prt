@@ -1,0 +1,94 @@
+// BTP 1h - ST(30,1.5) + SL + TP trailing
+// Linee: ST=trend, SL=stop, TP=trailing target
+// =============================================
+
+V1 = HIGH - LOW
+V2 = HIGH - CLOSE[1]
+IF V2 < 0 THEN
+   V2 = -V2
+ENDIF
+V3 = LOW - CLOSE[1]
+IF V3 < 0 THEN
+   V3 = -V3
+ENDIF
+TRV = V1
+IF V2 > TRV THEN
+   TRV = V2
+ENDIF
+IF V3 > TRV THEN
+   TRV = V3
+ENDIF
+
+IF BARINDEX = 1 THEN
+   AV = TRV
+ELSE
+   AV = AV[1] + (TRV - AV[1]) / 30
+ENDIF
+
+IsPH = (HIGH > HIGH[1] AND HIGH > HIGH[2] AND HIGH > HIGH[3] AND HIGH > HIGH[4] AND HIGH > HIGH[5])
+IsPL = (LOW < LOW[1] AND LOW < LOW[2] AND LOW < LOW[3] AND LOW < LOW[4] AND LOW < LOW[5])
+
+IF BARINDEX = 1 THEN
+   PH = HIGH
+   PL = LOW
+ELSE
+   IF IsPH THEN
+      PH = HIGH
+   ELSE
+      PH = PH[1]
+   ENDIF
+   IF IsPL THEN
+      PL = LOW
+   ELSE
+      PL = PL[1]
+   ENDIF
+ENDIF
+
+HP = (HIGH + LOW) / 2
+BU = HP + 1.5 * AV
+BL = HP - 1.5 * AV
+
+IF BARINDEX = 1 THEN
+   FBU = BU
+   FBL = BL
+   ST = FBU
+   D = -1
+ELSE
+   IF BU < FBU[1] OR CLOSE[1] > FBU[1] THEN
+      FBU = BU
+   ELSE
+      FBU = FBU[1]
+   ENDIF
+   IF BL > FBL[1] OR CLOSE[1] < FBL[1] THEN
+      FBL = BL
+   ELSE
+      FBL = FBL[1]
+   ENDIF
+   IF D[1] = -1 THEN
+      IF CLOSE > FBU THEN
+         ST = FBL
+         D = 1
+      ELSE
+         ST = FBU
+         D = -1
+      ENDIF
+   ELSE
+      IF CLOSE < FBL THEN
+         ST = FBU
+         D = -1
+      ELSE
+         ST = FBL
+         D = 1
+      ENDIF
+   ENDIF
+ENDIF
+
+IF D = 1 THEN
+   SL = PL - 0.5 * AV
+   TP = PH
+ELSE
+   SL = PH + 0.5 * AV
+   TP = PL
+ENDIF
+
+RETURN ST, SL, TP
