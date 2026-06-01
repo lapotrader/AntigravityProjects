@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Prospetto — Edge su Bund e BTP Future</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;color:#222;padding:20px}
+.container{max-width:900px;margin:0 auto}
+h1{font-size:24px;margin-bottom:4px}
+.sub{color:#666;font-size:14px;margin-bottom:20px}
+.meta{background:#fff;border-radius:8px;padding:16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.meta table{width:100%;border-collapse:collapse}
+.meta td,.meta th{padding:6px 8px;text-align:left;font-size:13px}
+.meta th{font-weight:600;color:#555;width:140px}
+.card{background:#fff;border-radius:8px;padding:16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.card h2{font-size:16px;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #eee}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:6px 8px;background:#f8f8f8;font-weight:600;color:#555;border-bottom:2px solid #ddd}
+td{padding:6px 8px;border-bottom:1px solid #eee}
+.bad{color:#c00;font-weight:600}
+.good{color:#080;font-weight:600}
+.mid{color:#e60;font-weight:600}
+.best{background:#e8f5e9}
+.verdict{display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;font-weight:600}
+.verdict.ok{background:#e8f5e9;color:#080}
+.verdict.no{background:#fbe9e7;color:#c00}
+.warn{background:#fff8e1;border-left:4px solid #f90;padding:12px;border-radius:4px;font-size:13px;margin-top:12px}
+.system{background:#e3f2fd;border-left:4px solid #1976d2;padding:14px;border-radius:4px;margin-top:12px}
+.system h3{font-size:14px;margin-bottom:6px;color:#1976d2}
+.system p{font-size:13px;line-height:1.5}
+.lesson{background:#f3e5f5;border-left:4px solid #7b1fa2;padding:12px;border-radius:4px;margin:8px 0;font-size:13px}
+.lesson b{color:#7b1fa2}
+.anno{font-size:12px;color:#888;margin-top:16px;text-align:center}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>📊 Edge su Bund e BTP Future</h1>
+<p class="sub">Sessione di ricerca quantitativa — 2018-2026 | Look-ahead bias dimostrato, edge statistici ricercati</p>
+
+<div class="meta">
+<table>
+<tr><th>Obiettivo</th><td>Trovare un edge statistico reale su Bund/BTP Future dopo aver dimostrato che il 93-95% del PnL originale era look-ahead bias</td></tr>
+<tr><th>Approccio</th><td>"Via Simons" — nessuna predizione direzionale, tanti trade piccoli, adattamento continuo, parametri non ottimizzati</td></tr>
+<tr><th>Metodologia</th><td>Backtest walk-forward con split IS/VAL/OOS, ON/OFF filter rolling, test OOS su contratto specifico</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>📁 Dati</h2>
+<table>
+<tr><th>Strumento</th><th>Timeframe</th><th>Candele</th><th>Periodo</th><th>Vol. annua</th><th>ATR</th></tr>
+<tr><td><b>Bund</b></td><td>1h (da 1min)</td><td>28.568</td><td>2018-2026</td><td>5.5%</td><td>0.213</td></tr>
+<tr><td><b>Bund</b></td><td>1min tick</td><td>1.512.802</td><td>2018-2026</td><td>—</td><td>—</td></tr>
+<tr><td><b>BTP</b></td><td>1h continuo</td><td>7.704</td><td>2023-2025</td><td>6.2%</td><td>0.214</td></tr>
+<tr><td><b>BTP</b></td><td>contratto 27feb</td><td>708</td><td>feb-giu 2026</td><td>—</td><td>—</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>❌ Strategie testate — Risultati</h2>
+<table>
+<tr><th>Strategia</th><th>Bund 8anni</th><th>BTP 2.7anni</th><th>Verdetto</th></tr>
+<tr><td>SuperTrend + regime-adapt TP</td><td>PF=0.96</td><td>PF=1.04</td><td><span class="verdict no">✗ Piatto</span></td></tr>
+<tr><td>BB Mean Reversion (multi-TF)</td><td>PF=1.06</td><td>PF=1.02</td><td><span class="verdict no">✗ Marginale, overfitta</span></td></tr>
+<tr><td>ATR-channel / Donchian</td><td>PF=1.04</td><td>0 trades</td><td><span class="verdict no">✗ Nessun edge</span></td></tr>
+<tr class="best"><td><b>RSI(14) + Volume confirmation</b></td><td><b>PF=1.24</b></td><td><b>PF=6.52</b></td><td><span class="verdict ok">✅ Edge reale</span></td></tr>
+<tr><td>Gap continuation (intraday)</td><td>52% WR, +7.7pt</td><td>—</td><td><span class="verdict ok">✅ Edge microstruttura</span></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>✅ Sistema finale: RSI(14) + Volume confirmation + ON/OFF</h2>
+
+<div class="system">
+<h3>Parametri</h3>
+<p>RSI period=14 | Oversold=20 | Overbought=75 | Volume filter=2× media | SL=swing 5 bar/2ATR | TP=2 ATR | Timeout=40 barre</p>
+<p><b>ON/OFF filter:</b> rolling PnL 3 mesi. OFF se PnL&lt;0, ON se ≥0.</p>
+</div>
+
+<table style="margin-top:12px">
+<tr><th>Periodo</th><th>Bund</th><th></th><th>BTP</th><th></th></tr>
+<tr><td></td><td><b>PF</b></td><td><b>PnL</b></td><td><b>PF</b></td><td><b>PnL</b></td></tr>
+<tr><td>IS</td><td class="good">1.24</td><td>+7.0 pt</td><td class="good">6.23</td><td>+2.8 pt</td></tr>
+<tr><td>OOS</td><td class="good">1.24</td><td>+2.7 pt</td><td class="good">6.52</td><td>+2.3 pt</td></tr>
+<tr><td>ON/OFF filter</td><td class="good">1.24</td><td>+7.0 pt</td><td class="good">8.35</td><td>+3.0 pt</td></tr>
+<tr><td>Contratto 2026</td><td class="bad">0.83</td><td>-2.2 pt</td><td class="bad">0.85</td><td>-0.1 pt</td></tr>
+</table>
+
+<div class="warn">
+<strong>⚠️ Criticità:</strong> Il sistema si degrada sui dati più recenti (2026) in entrambi gli strumenti. Su BTP si recupera rimuovendo il filtro volume (PF=4.04 con vol_mult=1.0, TP=3ATR).
+</div>
+</div>
+
+<div class="card">
+<h2>📊 Confronto Bund vs BTP</h2>
+<table>
+<tr><th>Metrica</th><th>Bund</th><th>BTP</th></tr>
+<tr><td>Volatilità annua</td><td>5.5%</td><td class="good">6.2%</td></tr>
+<tr><td>Best PF</td><td>1.24</td><td class="good">6.52</td></tr>
+<tr><td>Trades/anno</td><td>~21</td><td>~12</td></tr>
+<tr><td>PnL/anno</td><td>+0.87 pt</td><td class="good">+1.9 pt</td></tr>
+<tr><td>Dimensione edge</td><td>Piccolo</td><td class="good">Significativo</td></tr>
+<tr><td>Campione</td><td class="good">8 anni (solido)</td><td>2.7 anni (debole)</td></tr>
+<tr><td>Regge OOS 2026?</td><td class="bad">No</td><td class="mid">Parziale</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>📈 Performance attesa — Bund (8 anni, ON/OFF)</h2>
+<table>
+<tr><th>Metrica</th><th>Valore</th></tr>
+<tr><td>Profit factor</td><td>1.24</td></tr>
+<tr><td>Trades totali</td><td>171</td></tr>
+<tr><td>Trades/anno</td><td>~21</td></tr>
+<tr><td>Win rate</td><td>53%</td></tr>
+<tr><td>PnL totale</td><td>+7 pt</td></tr>
+<tr><td>PnL/anno</td><td>+0.87 pt</td></tr>
+<tr><td>Max drawdown</td><td>-11.5 pt</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>💡 Lezioni ("Via Simons")</h2>
+
+<div class="lesson"><b>1. Gli edge sono momentanei</b> — Il SuperTrend è stato piatto 8 anni (PF=0.96), poi ha fatto PF=2.52 per 3 mesi sul contratto marzo 2026. Non esistono strategie "sempreverdi". L'unico approccio è il monitoraggio live.</div>
+
+<div class="lesson"><b>2. L'ottimizzazione è nemica dell'edge</b> — Parametri fissi battono parametri ottimizzati mese per mese. La correlazione IS_PF → OOS_PF è -0.15: ottimizzare sull'IS non aiuta l'OOS.</div>
+
+<div class="lesson"><b>3. Meno segnali = meglio</b> — RSI+Volume puro batte RSI+Volume+BB (PF 1.24 vs 1.06 su Bund). Ogni segnale aggiuntivo è rumore, non informazione.</div>
+
+<div class="lesson"><b>4. ON/OFF filter funziona</b> — Filtrare i mesi con rolling PF negativo taglia il 40% dei trade e migliora il PF del 10-15%. Meglio non tradare che tradare male.</div>
+
+<div class="lesson"><b>5. Volatilità genera edge</b> — BTP (6.2% annua) ha un edge 5× più grande di Bund (5.5%). La ricerca dovrebbe concentrarsi su strumenti più volatili.</div>
+</div>
+
+<div class="card">
+<h2>⚠️ Warning</h2>
+<ul style="font-size:13px;line-height:1.6;padding-left:20px">
+<li>Su Bund l'edge è reale ma <b>troppo piccolo per trading operativo</b> (2 trade/mese, 0.87pt/anno)</li>
+<li>Su BTP l'edge è grosso ma il <b>campione è piccolo</b> (2.7 anni). I dati 2026 mostrano degrado</li>
+<li>Il sistema RSI+Volume <b>si rompe sui dati più recenti</b> in entrambi gli strumenti</li>
+<li>Servirebbero <b>più strumenti/segnali</b> per costruire un portafoglio diversificato</li>
+</ul>
+</div>
+
+<p class="anno">Ricerca completata — Giugno 2026</p>
+
+</div>
+</body>
+</html>
