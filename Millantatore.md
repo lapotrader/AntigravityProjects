@@ -126,18 +126,82 @@ Stessa griglia. **BTP e' l'unico strumento che mostra un barlume di edge.**
 
 ---
 
+## 5. Mean Reversion (BB + ADX) su Bund 1h
+
+### Verifica
+
+Griglia: 3 periodi BB x 4 std x 3 soglie ADX = 36 combinazioni.
+
+**Miglior sistema**: BB(30,2.5) ADX<20
+
+| Periodo | PF | PnL | n trades |
+|---------|-----|-----|---------|
+| IS 2023 | 1.58 | +11.226€ | 23 |
+| OOS 2024 | 1.98 | +13.093€ | 30 |
+| FWD 2025 | 2.43 | +8.970€ | 23 |
+| Blind 2026 | 2.47 | +4.168€ | 9 |
+
+18/36 combinazioni con min PF > 1.00. Ma **bug nel backtest**: il segnale di uscita (close > SMA) veniva saltato da un `continue`. Le uscite avvenivano solo tramite SL e time stop.
+
+Dopo correzione (backtest onesto):
+
+| Slippage | PF | PnL |
+|----------|-----|-----|
+| 0 tick | 0.64 | -20.594€ |
+| **1 tick** | **0.59** | **-23.856€** |
+| 2 tick | 0.57 | -25.146€ |
+| 3 tick | 0.55 | -26.750€ |
+
+Long PF=0.72, Short PF=0.45. Il sistema perde in ogni direzione, su ogni periodo.
+
+### Verdetto: ❌ NON VALIDO
+
+> Un altro backtest buggato che dava falsi positivi. Dopo correzione, nessun edge.
+
+---
+
+## 6. Mulloy AMA su BTP 3min e 1h
+
+### Verifica
+
+Media mobile adattiva (KAMA-style) su BTP: segnale long quando close > AMA e AMA sale, short quando close < AMA e AMA scende. SL trailing ATR(14)x2, exit a cross AMA.
+
+**BTP 3min** — 6 ER x 2 fast SC x 2 slow SC = 24 combinazioni:
+
+| Parametro | IS_PF | OOS_PF | FWD_PF | min PF |
+|-----------|-------|--------|--------|--------|
+| AMA(30,3,30) | 0.73 | 0.52 | 0.49 | **0.49** |
+
+Zero su 24 con min PF > 1.00. 2000-4000 trade/periodo, costi insostenibili.
+
+**BTP 1h** — stessa griglia:
+
+| Parametro | IS_PF | OOS_PF | FWD_PF | min PF |
+|-----------|-------|--------|--------|--------|
+| AMA(7,2,30) | 0.96 | 0.69 | 0.69 | **0.69** |
+
+Zero su 24. IS arriva a 1.08 ma OOS e FWD crollano a 0.6-0.7.
+
+### Verdetto: ❌ NON VALIDO
+
+> L'AMA su timeframe infraday genera troppi segnali per essere redditizia dopo costi reali. Il BTP non regge strategie a media frequenza.
+
+---
+
 ## Riepilogo finale
 
-| Strategia | Strumento | Timeframe | PF min | Verdetto |
-|-----------|-----------|-----------|--------|----------|
-| MACD + ST | BTP | 1h | 0.94 (3tick) | ❌ |
-| SuperTrend | DAX | 3min | 0.86 | ❌ |
-| SuperTrend | Bund | 3min | 0.77 | ❌ |
-| SuperTrend | **BTP** | **3min** | **1.09** | ❓ |
+| # | Strategia | Fonte | Strumento | Timeframe | PF min | Verdetto |
+|---|-----------|-------|-----------|-----------|--------|----------|
+| 1 | MACD + ST | Trombetta | BTP | 1h | 0.94 (3tick) | ❌ |
+| 2 | SuperTrend | Trombetta | DAX | 3min | 0.86 | ❌ |
+| 3 | SuperTrend | Trombetta | Bund | 3min | 0.77 | ❌ |
+| 4 | SuperTrend | Trombetta | BTP | 3min | 1.09 | ❓ |
+| 5 | BB+ADX MR | nostra | Bund | 1h | 0.59 | ❌ |
+| 6 | Mulloy AMA | nostra | BTP | 3min/1h | 0.49 | ❌ |
 
 ## Conclusione
 
-4 strategie testate, **3 falliscono completamente**, 1 e' dubbia con PnL marginale.
+6 strategie testate, **5 falliscono completamente**, 1 e' dubbia (PnL marginale).
 
 Il libro "Strategie di trading con Python" di Giovanni Trombetta millanta risultati che non reggono a:
 1. Costi realistici (commissioni + slippage)
@@ -148,4 +212,4 @@ Nessuna delle strategie analizzate e' passabile per trading live.
 
 ---
 
-*Report generato il 2 Giugno 2026*
+*Report generato il 2 Giugno 2026 — aggiornamento finale*
