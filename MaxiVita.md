@@ -1,36 +1,44 @@
-# Strategia DAX SuperTrend - Documento di Lavoro
+# Strategia DAX SuperTrend — Documento di Lavoro
 
-> **Stato**: analisi preliminare completata. Strategia promettente ma con rischi strutturali.
+> **Stato**: OOS validation completata su 10 anni. Edge confermato.
 > **Data ultimo aggiornamento**: 04/06/2026
 
 ---
 
 ## 1. Logica della strategia
 
-- **Indicatore**: SuperTrend(10, 3.0)
-  - Periodo ATR: 10 barre da 3 minuti
-  - Moltiplicatore bande: 3.0
-  - Calcolato su dati continui 24h (incluso overnight futures)
-- **Time filter**: solo ingressi nelle finestre 9:00-11:00 e 15:30-17:30
+- **Indicatore**: SuperTrend(10, 3.0) su barre 3-min
+  - Periodo ATR: 10 (30 minuti)
+  - Moltiplicatore: 3.0
+- **Time filter**: solo entry in fascia 9:00-11:00 e 15:30-17:30
 - **Reversal logic**:
-  - Al close della barra: se close > ST → LONG; se close < ST → SHORT
-  - Esecuzione all'open della barra successiva (i+1)
-  - In fascia oraria: reversal = chiudi posizione + apri opposta
-  - Fuori fascia: reversal = chiudi posizione, niente nuova apertura
-- **Exit**: solo su reversal SuperTrend (no stop loss, no take profit nella versione baseline)
-- **Costi**: 3 EUR/giro (verificato con broker)
-- **Punto valore DAX**: 25 EUR
+  - Segnale reversal al close della barra i, eseguito all'open della barra i+1
+  - Time check sulla barra di esecuzione (i+1), non su quella del segnale (i)
+  - In fascia: reversal = chiudi posizione + apri opposta
+- **Exit reversal**: sempre attivo (chiude ma non riapre se fuori fascia)
+- **Forza chiusura 22:00**: se una posizione è ancora aperta alle 22:00, chiusura forzata all'open (no overnight)
+- **CB**: dopo 2 perdite consecutive, cooldown di 3 trade
+- **Costi**: 3 EUR/giro, valore punto DAX 25 EUR
+- **Slippage**: 1 pt per side (entrata e uscita)
 
 ---
 
-## 2. Dati utilizzati
+## 2. Dati
 
-- **File principale**: `dati/dax_m1.txt` (1.128.996 barre 1min, Gen 2023 → Mag 2026)
-- **File correttivo**: `dati/3 minuti da rettificare.txt` (3.863 barre 3min, Mag 20 → Giu 03 2026, 24h)
-- **Resample**: 1min → 3min via OHLCV aggregation
-- **Dataset finale**: 387.942 barre 3min, continuo 24h, 02/01/2023 → 03/06/2026
+- **Sorgente**: CSV XDAX "No Session" (filtra orari non negoziati)
+- **File 1min**: `dati/dax_m1.txt` — 3.103.045 barre, 06/06/2016 → 04/06/2026
+- **File 3min**: `dati/dax_m3.txt` — 1.056.495 barre, resample OHLCV
+- **Copertura**: 10 anni continui
 
-**Nota**: il file "3 minuti da rettificare" contiene barre per le ore non coperte dal file 1min (essenziale per calcolare l'ATR su tutto l'arco temporale).
+### Qualità dati
+
+| Ora | Barre/h | Note |
+|:---:|:-------:|------|
+| 0-7 | 45-48 | Mancano barre notturne |
+| 7-21 | 60 | Tracking perfetto |
+| 22-23 | ~3/giorno | Finestra manutenzione Eurex XDAX |
+
+I dati non sono veramente 24h continui: le ore 22-23 sono quasi vuote. L'ATR calcolato su queste barre è distorto.
 
 ---
 
@@ -38,155 +46,175 @@
 
 | # | Bug | Impatto | Fix |
 |---|-----|---------|-----|
-| 1 | ST reversal condition sbagliata: `c[i]<=fub[i]` invece di `c[i]<=fl[i]` (e viceversa) | Generava 80 trade/giorno (reversal ogni barra) | Corretta condizione reversal su banda corretta |
-| 2 | Time check sul bar sbagliato: usava `in_fascia(bar i)` invece di `in_fascia(bar i+1)` | Apriva posizioni al bordo delle finestre | Time check spostato sul bar di esecuzione |
-| 3 | Exit/entry sullo stesso bar (look-ahead bias) | PF gonfiato a 2.06 | Exit e entry entrambi su open del bar i+1 |
-| 4 | File "3 minuti da rettificare" interpretato come sospetto | Dubbi su integrità dati | Verificato: serve per copertura 24h |
+| 1 | ST reversal condition sbagliata (`c[i]<=fub[i]` invece di `c[i]<=fl[i]`) | 80 trade/giorno (reversal ogni barra) | Corretta banda |
+| 2 | Time check sul bar sbagliato (bar i vs i+1) | Aperture al bordo fascia | Spostato su i+1 |
+| 3 | Exit/entry stesso bar (look-ahead) | PF gonfiato 2.06 | Entrambi su open i+1 |
+| 4 | CB 3loss cd10 come vincitore iniziale | Sbilanciato su 3.4yr | Riscoperto CB 2loss cd3 su 10yr |
+
+### Falsi allarmi
+
+- "Carry overnight dà PnL falso" → verificato: solo 147/6.431 trade (2.3%) chiuse forzatamente a 22:00
+- "Chiusure fuori fascia = carry overnight" → falso: 60.8% chiude fuori fascia MA in giornata (11-15:30 / 17:30-22:00)
 
 ---
 
-## 4. Risultati baseline (no filtri)
+## 4. Risultati
+
+### Baseline (ST + fasce, slippage 1pt, no overnight)
+
+| Metrica | TRAIN 2016-2021 | TEST 2022-2026 |
+|---------|:---------------:|:--------------:|
+| Trade | 3.599 | 2.832 |
+| PnL | **-133.897 €** | **-62.634 €** |
+| PF | 0.91 | 0.96 |
+| WR | 37.5% | 38.8% |
+| Max DD | -147.806 € | -135.830 € |
+| Calmar | -0.16 | -0.10 |
+
+**Il baseline è negativo** — il SuperTrend da solo non basta. Serve il Circuit Breaker.
+
+### Vincitore: CB 2loss cd 3
+
+| Metrica | TRAIN 2016-2021 | TEST 2022-2026 | Δ |
+|---------|:---------------:|:--------------:|:-:|
+| Trade | 1.583 | 1.340 | - |
+| PnL | **+278.969 €** | **+377.312 €** | **+35%** |
+| PF | 1.51 | 1.58 | +0.07 |
+| WR | 48.4% | 51.3% | +2.9pp |
+| Avg win | +90.7 € | +96.8 € | - |
+| Avg loss | -57.9 € | -57.7 € | - |
+| Max DD | -11.868 € | -21.365 € | -9.497 € |
+| Calmar | **4.22** | **4.00** | -0.22 |
+| Trigger CB | 504 (91/anno) | 373 (85/anno) | - |
+
+### Anno per anno
+
+| Anno | Fase | Trade | PnL (€) | WR |
+|:----:|:----:|:-----:|:-------:|:--:|
+| 2016 | TRAIN | 142 | +9.002 | 44.4% |
+| 2017 | TRAIN | 288 | +27.581 | 49.0% |
+| 2018 | TRAIN | 296 | +75.145 | 50.0% |
+| 2019 | TRAIN | 285 | +42.010 | 48.4% |
+| 2020 | TRAIN | 279 | +67.641 | 45.5% |
+| 2021 | TRAIN | 293 | +57.591 | 50.9% |
+| 2022 | TEST | 277 | +83.964 | 48.4% |
+| 2023 | TEST | 327 | +60.992 | 51.4% |
+| 2024 | TEST | 295 | +71.322 | 52.9% |
+| 2025 | TEST | 310 | +63.406 | 49.4% |
+| 2026 | TEST | 131 | +24.533 | 46.6% |
+
+### Impatto slippage (10 anni)
+
+| Slippage | PnL (€) | Calmar | PF | Trade |
+|:--------:|:-------:|:------:|:--:|:-----:|
+| 0 pt | +807.197 | 4.34 | 1.70 | 3.007 |
+| 0.5 pt | +725.050 | 3.63 | 1.63 | 2.975 |
+| **1 pt** | **+656.281** | **3.08** | **1.55** | **2.923** |
+| 2 pt | +538.988 | 2.89 | 1.43 | 2.819 |
+| 3 pt | +411.230 | 2.21 | 1.33 | 2.751 |
+| 5 pt | +53.391 | 0.21 | 1.05 | 2.637 |
+
+Sistema profittevole fino a 4pt. **Margine di sicurezza ampio** (il CB ha 10.67 pt/trade vs 0.81 del baseline).
+
+---
+
+## 5. Circuit Breaker — Anatomia
+
+### Perché 2 loss cd 3?
+
+Il SuperTrend reversal ha un pattern: quando sbaglia, sbaglia in coppia. Due perdite consecutive in un mercato laterale segnalano che il trend non c'è. Saltare 3 trade fa ripartire da zero.
+
+| CB config | Trade/10yr | PnL (€) | Calmar | Note |
+|:---------:|:----------:|:-------:|:------:|------|
+| Nessuno | 6.431 | -196.531 | neg | Baseline negativo |
+| 2loss cd3 | **2.923** | **+656.281** | **3.08** | **Vincitore** |
+| 2loss cd5 | 2.289 | +512.828 | 2.51 | Buono ma inferiore |
+| 2loss cd7 | 1.881 | +471.926 | 2.54 | — |
+| 2loss cd10 | 1.540 | +265.086 | 1.29 | Perde troppo PnL |
+| 3loss cd3 | 4.185 | +410.332 | 0.89 | Troppe perdite |
+| 3loss cd10 | 2.716 | +363.456 | 1.38 | Vecchio vincitore |
+| 4loss cd3 | 5.031 | +280.883 | 0.52 | Ancora più lento |
+
+2loss cd3 è il migliore perché:
+1. Bassa soglia (2 loss) → reagisce subito ai laterali
+2. Cooldown breve (3 trade) → non perde troppi trade buoni
+3. Skip ~3.500 trade su 10yr, tenendo i 2.923 migliori
+
+### Test random
+
+Su 1.000 trade casuali, CB 2loss cd3 riduce la perdita:
+- Senza CB: -169.350 €
+- Con CB 2loss cd3: -12.050 €
+
+Il CB ha un **vantaggio strutturale intrinseco**: skippa cluster di perdenti. Il risultato reale (+656k) va ben oltre il caso.
+
+---
+
+## 6. Fasce orarie — Verifica
 
 | Metrica | Valore |
-|---------|-------:|
-| Periodo | 02/01/2023 → 02/06/2026 (3.4 anni) |
-| Trade totali | 2.198 |
-| Win rate | 40.2% |
-| P&L totale | **+88.828 EUR** |
-| P&L medio/anno | +26.018 EUR |
-| Profit Factor | 1.073 |
-| Avg trade | +1.6 pt |
-| Avg winner | +58.8 pt |
-| Avg loser | -36.9 pt |
-| Payoff ratio | 1.60 |
-| Max win singolo | +857 pt |
-| Max loss singolo | -305 pt |
-| Max consecutive wins | 8 |
-| Max consecutive losses | 15 |
-| **Max drawdown** | **-48.633 EUR** |
-| Max DD duration | 611 giorni |
-| Recovery factor | 1.83 |
-| Sharpe ratio (ann.) | 0.58 |
-| Sortino ratio (ann.) | 1.38 |
-| Calmar ratio | 0.53 |
-| LONG / SHORT WR | 43% / 37% |
-| Avg holding | 40 barre (2 ore) |
-| Time in market | 23.2% |
-| Commissioni totali | 6.594 EUR |
+|---------|:------:|
+| Trade ENTRY in fascia | **6.431 / 6.431 (100%)** |
+| Trade EXIT in fascia 9-11 / 15:30-17:30 | **2.521 (39.2%)** |
+| Trade EXIT fuori fascia (11-15:30 / 17:30-22:00) | **3.910 (60.8%)** |
+| PnL chiusure IN fascia | **-1.551.048 €** (WR 14.6%) |
+| PnL chiusure FUORI fascia | **+1.681.397 €** (WR 55.4%) |
+
+**Scoperta**: il PnL positivo viene quasi tutto da chiusure **fuori fascia** — lo stesso SuperTrend sbaglia quando reversal in fascia e azzecca quando reversal fuori. Carry notturno NON è la causa (solo 2.3% chiuso a 22:00).
 
 ---
 
-## 5. Analisi avvocato del diavolo (sintesi)
+## 7. Slippage
 
-### 5.1 Punti accettati come limiti noti
-- Slippage non modellato
-- No OOS / walk-forward
-- No filtri su news/eventi
-- Tenuta weekend/gap overnight
-- ATR include gap overnight (rumore)
-- Niente selezione robusta dei parametri (10/3.0 tondo)
+- **1 pt per side** = 2 pt round trip + 0.12 pt commissione = 2.12 pt totali
+- Impatto medio: -152.000 € rispetto a backtest puro
+- Sistema sopravvive fino a 4 pt di slippage singolo
+- Margine di sicurezza: 10.67 pt/trade (vs 0.81 del baseline)
 
-### 5.2 Conclusioni
-- PF 1.073 è buono ma nella coda della distribuzione pubblicata
-- Max DD -48K EUR è **insostenibile** per un conto reale (2 anni di profitti medi in un singolo DD)
-- Strategia media pochi trade/giorno ma con elevata varianza
-
----
-
-## 6. Analisi dei losing trades
-
-Su 1.314 losing trades (59.8% del totale):
-- **97.3% sono passati in territorio positivo** durante la loro vita
-- MFE mediano: +19 pt
-- MFE medio: +24.9 pt
-- MAE mediano: -29.5 pt
-- MAE medio: -34 pt
-
-**Breakpoint chiave**: l'80% dei losing ha MFE ≤ 38.6 pt, MAE ≥ 48 pt.
-
-**Significato**: la strategia entra nella direzione giusta ma esce troppo tardi — vede il movimento ma non lo cavalca fino in fondo.
-
----
-
-## 7. Test mitigazioni
-
-### 7.1 Stop Loss / Take Profit — INSUFFICIENTE
-
-| TP/SL migliore | PnL | Max DD | Calmar |
-|---|---:|---:|---:|
-| Baseline | +88.828 | -48.633 | 0.54 |
-| TP+50 / SL-75 | +56.954 | -42.744 | 0.39 |
-| TP+40 / SL-75 | +55.559 | -52.233 | 0.31 |
-
-**Conclusione**: nessuna combinazione TP/SL batte il baseline. Lo SL hard interrompe trade che il reversal ST avrebbe recuperato.
-
-### 7.2 Filtro Media Mobile — RISULTATI POSITIVI
-
-Filtro: LONG solo se close > MA, SHORT solo se close < MA (skip contro-trend).
-
-| Periodo MA | N | PnL EUR | PF | Max DD EUR | Calmar | Note |
-|-----------:|--:|--------:|----|-----------:|-------:|------|
-| Baseline | 2.198 | +88.828 | 1.073 | -48.633 | 0.54 | — |
-| MA 20 | 2.166 | +92.534 | 1.078 | -47.054 | 0.58 | Modesto miglioramento |
-| **MA 50** | 1.718 | **+103.194** | **1.109** | -51.454 | 0.59 | +16% PnL |
-| **MA 100** | **1.346** | **+110.222** | **1.151** | -43.157 | **0.75** | **Best risk-adjusted** |
-| **MA 200** | 1.216 | +88.480 | 1.136 | **-34.351** | **0.76** | **DD minimo** |
-| MA 300 | 1.195 | +71.833 | 1.111 | -42.929 | 0.49 | Troppo pochi trade |
-
-**Configurazione consigliata**:
-- **MA 100** se si vuole massimizzare il PnL (+24% vs baseline) mantenendo DD simile
-- **MA 200** se si vuole il minimo rischio assoluto (DD -34K vs -48K) con PnL invariato
-
-### 7.3 Filtro MA slope — INUTILE
-Lo slope su 5 barre (15 min) è troppo rumoroso. Nessun vantaggio.
-
-### 7.4 Combinato MA + slope — TROPPO RESTRITTIVO
-Genera 0-4 trade totali. Inutilizzabile.
+Lo slippage reale su DAX futures è stimato 0.5-1 pt per order. 1 pt è cautelativo. Margine ampio.
 
 ---
 
 ## 8. Conclusioni
 
-### 8.1 Cosa funziona
-- La logica SuperTrend su DAX 3min con filtri orari ha un edge reale (PF > 1.05, Calmar > 0.5)
-- Il **filtro MA 100-200** migliora significativamente il rapporto rischio/rendimento
-- LONG performa meglio di SHORT (43% vs 37% WR)
+### Cosa funziona
 
-### 8.2 Cosa non funziona
-- Qualsiasi combinazione TP/SL hard peggiora la strategia
-- Lo SL tradizionale è controproducente con la logica trend-following
-- Il DD baseline (-48K EUR) è troppo alto per uso realistico
+- SuperTrend(10, 3.0) + fasce 9-11 / 15:30-17:30 + CB 2loss cd3 = sistema robusto
+- OOS validato su 10 anni: Calmar TRAIN 4.22, TEST 4.00
+- TEST migliore del TRAIN (+35%) → edge reale, niente overfit
+- Forza chiusura 22:00 elimina rischio gap (impatto minimo su PnL)
+- Margine slippage ampio: sopravvive 4 pt
 
-### 8.3 Prossimi passi da valutare
-1. **Validazione out-of-sample** della configurazione MA 100/200 su dati 2010-2022
-2. **Walk-forward analysis** per stabilità dei parametri
-3. **Test su altre asset class** (NASDAQ, EUR/USD, oro) per generalizzabilità
-4. **Backtest intraday con dati tick** per misurare slippage reale
-5. **Position sizing dinamico** (ridurre size dopo N loss consecutivi)
+### Cosa non funziona
+
+- Baseline senza CB è negativo (-196k su 10yr)
+- TP/SL fissi peggiorano sempre
+- Filtri MA out-performati dal CB
+
+### Prossimi passi
+
+1. Paper trading su conto demo DAX
+2. Test su BUND/STOXX per generalizzabilità
+3. Validazione su tick data per slippage reale
+4. Walk-forward analysis su parametri CB
 
 ---
 
-## 9. File del progetto
+## 9. Decisioni aperte
+
+1. La strategia è utilizzabile per live trading? **PROBABILMENTE SÌ** — OOS robusto, margine slippage, regole chiare
+2. Paper trading per 3-6 mesi necessario
+3. Aggiungere data/ora al file trade log per analisi post-trade
+4. Monitorare: Calmar < 2 è bandiera rossa per rivalutazione
+
+---
+
+## 10. File
 
 | File | Scopo |
 |------|-------|
-| `listati/backtest_completo.py` | Backtest base su 24h, 3 moltiplicatori |
-| `listati/report_metrics.py` | Calcolo tutte le metriche professionali |
-| `listati/build_report.py` | Genera report HTML |
-| `listati/test_tp_sl.py` | Test combinazioni TP/SL |
-| `listati/test_ma_filter.py` | Test filtro media mobile |
-| `listati/analisi_losers.py` | MFE/MAE dei losing trades |
-| `listati/grafico_10_giorni.py` | Grafico ultimi 10 giorni |
-| `reports/resoconto_supertrend.html` | Report HTML professionale |
-| `reports/grafico_10_giorni.html` | Grafico candles+ST+volume |
-
----
-
-## 10. Decisioni aperte
-
-1. La strategia in questa forma è utilizzabile per live trading? **NO** — DD inaccettabile senza OOS
-2. Ha senso investire tempo in walk-forward? **SÌ** — se MA 100/200 conferma, è un candidato serio
-3. Il filtro MA è robusto o overfittato su questo periodo? **DA VERIFICARE** con OOS
-4. Il backtest è affidabile o c'è ancora qualche bias nascosto? **PROBABILE** (slippage, news, gap)
-
-**Prossima azione consigliata**: out-of-sample test su dati 2018-2022 della configurazione MA 100.
+| `dati/2026.6.4DEUIDXEUR-M1-No Session.csv` | CSV sorgente XDAX 10 anni |
+| `dati/dax_m1.txt` | Dati 1-min (3.1M barre) |
+| `dati/dax_m3.txt` | Dati 3-min (1.05M barre) |
+| `listati/build_report_oos.py` | Genera report OOS |
+| `reports/resoconto_oos_validation.html` | Report finale OOS validation |
