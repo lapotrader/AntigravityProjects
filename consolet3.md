@@ -1,4 +1,4 @@
-# Strategia Massimo Vita — SuperTrend DAX 3min
+# Strategia SuperTrend DAX 3min
 
 ## Parametri
 
