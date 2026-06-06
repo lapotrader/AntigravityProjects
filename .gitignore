@@ -1,0 +1,12 @@
+*.epub
+*.pkg
+__pycache__/
+build/
+build_temp/
+dist/
+output/
+outputxls/
+execution/*.csv
+PULITO_btp*
+dati/btp 2023-25.txt
+dati/1oraprova.txt
