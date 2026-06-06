@@ -4,6 +4,8 @@ import os
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
+from starlette.responses import PlainTextResponse
+from starlette.routing import Route
 
 import numpy as np
 import pandas as pd
@@ -276,6 +278,12 @@ def st(h, l, c, p, m):
     return d, s2, fu, fl
 
 
+async def health(request):
+    return PlainTextResponse("OK")
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
-    mcp.run(transport="sse")
+    app = mcp.sse_app()
+    app.router.routes.insert(0, Route("/", endpoint=health))
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=port)
