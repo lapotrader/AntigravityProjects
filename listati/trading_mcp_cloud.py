@@ -19,7 +19,7 @@ DATA_FILE = DATI / "ultimissimi5giugno.txt"
 COMM_PT = 3 / 5
 SLIP = 1.0
 
-mcp = FastMCP("Trading Console Cloud")
+mcp = FastMCP("Trading Console Cloud", host="0.0.0.0")
 
 
 def _in_fascia(hr, mn):
