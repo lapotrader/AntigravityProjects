@@ -284,6 +284,6 @@ async def health(request):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     app = mcp.streamable_http_app()
-    app.router.routes.insert(0, Route("/", endpoint=health))
+    app.router.routes.insert(0, Route("/health", endpoint=health))
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=port)
